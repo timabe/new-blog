@@ -1,0 +1,49 @@
+baseurl: https://www.timabe.info
+builddrafts: no
+canonifyurls: no
+languageCode: en-US
+contentdir: content
+layoutdir: layouts
+publishdir: public
+author: Tim Abraham
+title: Tim Abraham
+theme: hugo-goa
+#disqusShortname: https-shenoybr-github-io-hugo-goa-demo
+#googleAnalytics: XYZ
+enableRobotsTXT: yes
+params:
+  author: Tim Abraham
+  authorimage: dot.png
+  dateformat: Jan 2, 2006
+  description: About me
+  extra:
+    copyright: © 2023. Tim Abraham. [Some Rights Reserved](http://creativecommons.org/licenses/by/3.0/).
+    displayrssicon: yes
+    highlightjs: yes
+    poweredby: yes
+    socialmarkup: yes
+    toc: yes
+  meta:
+    description: Simple minimalist theme
+    keywords: minimalist,blog,goa,hugo,developer
+  social:
+    github: timabe
+    goodreads: <username>
+    instagram: timabe
+    kaggle: timabe
+    twitter: timabe
+    youtube: timmy4
+menu:
+  main:
+    - identifier: blog
+      name: blog
+      url: /blog/
+      weight: 100
+    - identifier: about
+      name: about
+      url: /about/
+      weight: 200
+    - identifier: coderag
+      name: coderag
+      url: /coderag/
+      weight: 300

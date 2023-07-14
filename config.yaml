@@ -15,12 +15,11 @@ params:
   author: Tim Abraham
   authorimage: dot.png
   dateformat: Jan 2, 2006
-  description: About me
   extra:
     copyright: © 2023. Tim Abraham. [Some Rights Reserved](http://creativecommons.org/licenses/by/3.0/).
-    displayrssicon: yes
+    displayrssicon: no
     highlightjs: yes
-    poweredby: yes
+    poweredby: no
     socialmarkup: yes
     toc: yes
   meta:
@@ -28,7 +27,7 @@ params:
     keywords: minimalist,blog,goa,hugo,developer
   social:
     github: timabe
-    goodreads: <username>
+    goodreads: timabe
     instagram: timabe
     kaggle: timabe
     twitter: timabe
@@ -43,7 +42,7 @@ menu:
       name: about
       url: /about/
       weight: 200
-    - identifier: coderag
-      name: coderag
-      url: /coderag/
+    - identifier: cooking
+      name: cooking
+      url: /cooking/
       weight: 300

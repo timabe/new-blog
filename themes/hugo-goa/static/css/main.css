@@ -17,7 +17,7 @@ a:link
 {
     text-decoration: none;
 
-    color: #526d7a;
+    color: #a80404;
 }
 body
 {
@@ -46,7 +46,7 @@ li
 }
 .author
 {
-    color: #444;
+    color: #444 !important;
 }
 .author h1,
 .author h2,

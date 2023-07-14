@@ -1,0 +1,66 @@
+---
+title: Panna Cotta
+author: Tim Abraham
+date: '2023-07-14'
+slug: panna-cotta
+categories:
+  - Cooking
+tags: []
+comments: no
+showcomments: yes
+showpagemeta: yes
+---
+
+Panna Cotta is a perfect dessert. It's not too sweet or heavy. It looks and tastes elegant, and it's surprisingly simple to make.
+
+The consistency of panna cotta is key. You don't want it to be too firm, like a flan. You also don't want it to collapse into a swamp of thick milkiness (although it will still taste great, but this dish is also about looks). Personally, I like to get it just ever so slightly above the threshold where it devolves into a puddle - barely holding its structure and jiggily enough such that a gust of wind will get it grooving on your plate. This is the [Mendoza line](https://en.wikipedia.org/wiki/Mendoza_Line) of panna cotta. Rather than wax too much more poetically on this, I'll show you what I mean.
+
+![My ideal panna cotta consistency](images/panna_cotta.gif)
+
+If you agree that this is the ideal consistency, follow the recipe exactly. If a firmer panna cotta is more your thing, add 10% more gelatin. Any less and you're swimming.
+
+## Data Driven!
+
+Frustrated with all the different recipes out there, I embarked on my own delicious journey to create the best panna cotta. Each iteration I recorded and took notes on, until I finally felt confident that I had the ratios right. To see my data, [click here.](https://www.notion.so/timabe/1114ed6305e74c9b8e01b5c6ca388e10?v=4d3350e524394c708db5fd117728e739)
+
+Or just read my recommendations:
+
+* Dairy: 2 cups cream, 1.5 cups whole milk
+* Gelatin: 7 grams
+* Sugar 4 tablespoons
+
+Yes, this dessert is on the lower side in terms of sugar and on the higher side in terms of fat. So it's basically the opposite of what they told us to eat in the '90s, but right on brand for what they're suggesting nowadays. 
+
+## Ingredients
+
+Makes approx 8 panna cottas
+
+* 2 cups cream
+* 1.5 cups whole milk
+* 7 grams powdered gelatin
+* 4 tablespoons sugar
+* Vanilla - just a few drops
+* Kosher salt - a tiny pinch
+
+If you want to plate your panna cotta like in the gif above
+
+* 8 4oz Ramekins
+* Canola oil spray
+
+## Instructions
+
+If plating, lightly oil your ramekins (otherwise they'll be difficult to remove).
+
+Pour whole milk in a shallow bowl and sprinkle powdered gelatin. Set aside.
+
+Add cream to a saucepan and put over medium heat. Stir in sugar and pinch of salt. Stirring constantly, allow mixture to heat up. Unlike a pudding or custard, this doesn't need to get that hot - 135 degrees F is just fine. Once you've reached there, take off heat and stir in milk and gelatin, which should have tightened up a bit by now. Add a few drops of vanilla, and carefully fill each ramekin. Stick in the refrigerator for at least 6 hours.
+
+To plate, run a thin paring knife along the ramekin's circumference. Place plate on top of ramekin, holding the two against each other, and rotate over so plate is on bottom. Give a medium "slap" to the top of the ramekin, and the panna cotta should slip out. Gently lift the ramekin off. 
+
+## Flavors, sauces, etc.
+
+Feel free to experiment with different panna cotta flavors. One that I've really enjoyed is strawberry. I'll blend up a handful of them with an immersion blender and strain to get all the seeds and pulp out. Then, when I mix the cream and milk/gelatin together, I'll add my strawberry juices. It comes out tasting like a light strawberry ice cream.
+
+Sometimes I will make a fresh berry sauce, too, where I'll add a handful of raspberries or blackberries to a shallow saucepan and heat on low until they release their juices. Then I'll just strain out the seeds and, if it's needed, add a small sprinkle of sugar. I'll do this right after I make the panna cotta, and the sauce will thicken as it cools. Adding a sauce is another way to make this elegant dish even more impressive looking.
+
+![Panna Cotta with a raspberry reduction sauce](images/pc_sauce.jpg)

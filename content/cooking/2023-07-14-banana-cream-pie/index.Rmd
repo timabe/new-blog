@@ -2,7 +2,7 @@
 title: Banana Cream Pie
 author: Tim Abraham
 date: '2023-07-14'
-slug: []
+slug: banana-cream-pie
 categories:
   - Cooking
 tags: []
@@ -19,7 +19,7 @@ Warning: This is possibly the best dessert you will ever have in your life. And,
 
 # Crust
 
-This is a no-bake pie, all the fillings are prepared on the stovetop. Please do not buy a premade crust, this pie is deserving of a homemade one. I recommend following my recipe for [Pie Crust](https://www.timabe.info/cook/pie-crust) and **blind baking** it.
+This is a no-bake pie, all the fillings are prepared on the stovetop. Please do not buy a premade crust, this pie is deserving of a homemade one. I recommend following my recipe for [Pie Crust](https://www.timabe.info/cooking/pie-crust) and **blind baking** it.
 
 # Ingredients
 

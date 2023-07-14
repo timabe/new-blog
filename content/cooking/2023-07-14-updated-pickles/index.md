@@ -1,8 +1,8 @@
 ---
 title: '[Updated] Pickles'
 author: Tim Abraham
-date: '2023-07-14'
-slug: []
+date: '2023-07-15'
+slug: updated-pickles
 categories:
   - Cooking
 tags: []

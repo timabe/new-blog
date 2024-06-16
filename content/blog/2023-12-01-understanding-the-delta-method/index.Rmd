@@ -1,0 +1,304 @@
+---
+title: Understanding the Delta Method
+author: Tim Abraham
+date: '2023-12-01'
+slug: []
+categories: []
+tags: []
+comments: no
+showcomments: yes
+showpagemeta: yes
+draft: true
+---
+
+```{r setup, warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+# Summary
+
+Average of sleep data: 6.878 $\bar{x}$
+
+Variance of sleep data: 1.736 $\sigma^2$
+
+Sample size: 1991 $n$
+
+Variance of sampling distribution: 0.00087 $\frac{\sigma^2}{n}$
+
+# Notes
+
+When a random variable gets multiplied by a constant, it's variance gets multiplied by the square of that constant (good to derive this rule)
+
+## Derivation of sampling mean
+
+The sample mean $\bar{x}$ is $\frac{x_1 + x_2 + … + x_n}{n}$
+
+So the variance of $\bar{x}$ can be written $Var(\bar{x})$ and is equal to
+
+$$
+ Var(\frac{x_1+x_2+...+x_n}{n})
+$$
+
+And see the note above, so we can pull out the $1/n$
+
+$$
+\frac{1}{n^2}Var(x_1+x_2+...+x_n)
+$$
+
+The variance of a sum is equal to the sum of the variance, so:
+
+$$
+\frac{1}{n^2}(Var(x_1) + Var(x_2) + ...+Var(x_n))
+$$
+
+Which can be written:
+
+$$
+\frac{1}{n^2}n\sigma^2
+$$
+
+Or:
+
+$$
+\frac{\sigma^2}{n}
+$$
+
+# Intro
+
+Let's build up an understanding of the delta method from scratch. The delta method is used to find asymptotic properties of linear transformations of random variables. That probably sounds like it's not too useful, but it actually is. For example, let's say we're running an experiment. Some of the things we want to measure the difference of are simple metrics, like sleep, naps, etc. But what if we want to measure something like sleep/nap? How would we measure the variance of this in order to do statistical inference on it? Unlike sleep or naps, we can't simply take the variance.
+
+# What is variance?
+
+Let's take a step back and remind ourselves what variance is. We'll be working with some sample data on how long people slept.
+
+```{r}
+sleep <- read_csv("NHANES_sleep.csv")
+```
+
+Variance measures how much a random variable moves around its mean. In our case, the mean is just:
+
+```{r}
+sample_mean <- mean(sleep$SleepHrsNight)
+sample_mean
+```
+
+And the variance is the sum of the squared difference between the mean and each observation, divided by the sample size:
+
+```{r}
+sum((sample_mean - sleep$SleepHrsNight)^2/length(sleep$SleepHrsNight))
+```
+
+Or we can use this function:
+
+```{r}
+var(sleep$SleepHrsNight)
+```
+
+This tells us how much our sleep data varies relative to its mean. But there's also a concept of a variance of a *sampling distribution* which is different, but actually more of interest to us.
+
+Let's imagine we got this sleep data from an experiment we ran. We measure that the average sleep is 6.88 hours, with a variance of 1.735, but this variance is only about the particular sample. If there were a few people who got 0 hours of sleep, or hundreds of hours of sleep, it would have massive effect on the variance. That makes the variance a little less interesting from a statistical standpoint.
+
+Imagine we ran this experiment thousands of times. We'd get many different sample means. Most would be pretty close to 6.88 (provided we are getting large enough samples, which we are). Some would, by sheer randomness, be a bit further from 6.88. This range is important because it tells us what a range of which we can expect our data to fall in if we aren't changing anything about our experiment. Like imagine this was a control group.
+
+This range is what we call the **variance of the sampling distribution**. We derived its formula above, it's just the variance divided by n.
+
+```{r}
+var_sampling_distbution <- var(sleep$SleepHrsNight)/length(sleep$SleepHrsNight)
+var_sampling_distbution
+```
+
+We also know, by the Central Limit Theorem, that the sampling distribution of the sample mean has a normal distribution, which means it's going to behave in a certain way - i.e. it'll follow the classic bell curve. From that we know things like:
+
+-   68% of the observations are going to be within 1 standard error from the mean
+
+-   95% of the observations are going to be within 2 standard errors from the mean
+
+Let's compute these. A standard error is just the square root of the variance:
+
+```{r}
+se_sampling_distribution <- sqrt(var_sampling_distbution)
+se_sampling_distribution
+```
+
+So what this means is that if we were to collect many more samples of sleep data, we'd expect the 68% of these samples to have a mean within +/- 0.0295 of 6.878955.
+
+Now let's just regroup: It feels like we're building one thing on top of another using formulas that we're just kind of taking for granted, right? This is where simulation can help us convince ourselves that what we've been saying is actually true.
+
+## Simulating and bootstrapping
+
+Since we can't go out there and actually collect more sleep data to build more sample means, the best thing we can do is to something called bootstrapping. Essentially, this amounts to drawing thousands of large samples of our data in random ways (where replacement is allowed), and treat these as if they were new data. As long as we have a big, true, IID sample, there's nothing wrong with doing this.
+
+```{r}
+sleep_sample <- function(df = sleep) {
+  mean(sample(df$SleepHrsNight, size = nrow(df), replace = T))
+}
+bootstraps <- replicate(10000, sleep_sample())
+```
+
+So now we have 10,000 sample means of our data. According to the Central Limit Theorem, this data should have a classic bell shaped distribution:
+
+```{r}
+tibble(means = bootstraps) |> 
+  ggplot() + 
+  geom_histogram(aes(means)) + 
+  labs(x = 'Sample means', y = 'Samples')
+
+```
+
+And it checks out! Okay, so there's one thing we've said above that we were able to simulate and verify. Now let's check the variance. Earlier we calculated the variance as:
+
+```{r}
+var_sampling_distbution
+```
+
+Let's compare this to our bootstrapped method:
+
+```{r}
+var(bootstraps)
+```
+
+Pretty close, right? And the more we bootstrap, the closer it's going to get to the theoretical value.
+
+Finally, let's verify that roughly 68% of our sample means fall within 1 standard error, and the 95% fall within 2:
+
+```{r}
+sum(bootstraps >= (sample_mean - se_sampling_distribution) & bootstraps <= sample_mean + se_sampling_distribution)/length(bootstraps)
+```
+
+Yes, 68% do.
+
+```{r}
+sum(bootstraps >= (sample_mean - 2*se_sampling_distribution) & bootstraps <= sample_mean + 2*se_sampling_distribution)/length(bootstraps)
+```
+
+And 95% fall within 2.
+
+# How variance can vary
+
+Above, we had a constant variance because we had a dataset we were working with. But now let's imagine, instead, we're working with something more theoretical, like the probability of a Bernoulli trial.
+
+Imagine the probability of getting a 1 is 0.5, then the probability of getting a 0 is also 0.5.
+
+We can derive the mean and variance of a bernoulli trial (see chapter 1):
+
+-   Mean: $p$
+
+-   Variance: $p(1-p)$
+
+So if $p=0.5$ the variance is $0.25$
+
+Can we compute the sampling distribution the same way we did before? Let's imagine we have 1000 trials:
+
+```{r}
+sim_bern <- function(n = 1000, p = 0.5) {
+  one_minus <- 1-p
+  trials <- sample(c(0,1), size = n, replace = T, prob = c(p, one_minus))
+  return(trials)
+}
+mean(sim_bern())
+var(sim_bern())
+```
+
+The variance is the same as $p(1-p)$.
+
+According to our formula, the variance of the sampling distribution should be $0.25/1000$
+
+```{r}
+0.25/1000
+```
+
+Let's try to bootstrap it:
+
+```{r}
+bernouli_means <- replicate(10000, mean(sim_bern()))
+tibble(bernouli_means) |> 
+  ggplot(aes(bernouli_means)) + 
+  geom_histogram()
+```
+
+```{r}
+var(bernouli_means)
+```
+
+Nice!
+
+Now let's look at when p varies. Obviously when p gets really big, or really small, the variance is going to shrink. To convince yourself, think about the variance in the outcomes of the Bernoulli trials when p = 1.
+
+Let's see the relationship between p and var:
+
+```{r}
+tibble(
+  probs = seq(0,1,by=0.01),
+  var_probs = probs*(1-probs)
+) |> 
+  ggplot(aes(probs, var_probs)) + 
+  geom_line()
+```
+
+Similarly, the sampling distribution is going to just be this divided by the sample size.
+
+# When we have a function of p
+
+Above, we looked at the mean, variance, sample mean, and variance of the sampling distribution of a bernoulli trial. Now let's imagine instead of measuring these statistics for p, we want to measure it for a linear transformation of p. The simple example would be $f(p) = \frac{p}{(1-p)}$, which is also known as the odds ratio and is used a lot in betting:
+
+Working with the initial $p=0.5$ , $f(p)=1$.
+
+```{r}
+odds_means <- bernouli_means/(1-bernouli_means)
+
+tibble(odds_means) |> 
+  ggplot(aes(odds_means)) + 
+  geom_histogram()
+
+var(odds_means)
+```
+
+## Delta method
+
+Delta method tells us that if we have a normally distributed random variable with mean 0 and sd sigma 2, then a function $g(x)$ of that has this distribution:
+
+$$
+\sqrt{n}(g(x_n)-g(\mu))\rightarrow N(0,(g'(\mu))^2\sigma^2)
+$$
+
+Plugging in our formula
+
+$$
+Var(\frac{p}{1-p})=g'(p)^2Var(p)
+$$
+
+And
+
+$$
+g'(p) = \frac{1}{(1-p)^2}
+$$
+
+Then the variance will be
+
+$$
+(\frac{1}{(1-p)^2})^2p(1-p)
+$$
+
+Or
+
+$$
+g(x_n)-g(\mu)\rightarrow N(0,\frac{p}{n(1-p)^3})
+$$
+
+```{r}
+0.5/(1000*(1-0.5)^3)
+```
+
+Nice! Note that the only other way we could compute the variance was by bootstrapping, and we couldn't simply just use the variance formula.
+
+# Scratch
+
+Can we simulate the odds the same way we simulated the bernoulli?
+
+```{r}
+sim_odds <- function(n = 1000, p = 0.5) {
+  one_minus <- 1-p
+  trials <- sample(c(0,1), size = n, replace = T, prob = c(p, one_minus))
+  return(trials)
+}
+```

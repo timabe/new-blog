@@ -1,0 +1,219 @@
+---
+title: Understanding the Delta Method
+author: Tim Abraham
+date: '2023-12-01'
+slug: []
+categories: []
+tags: []
+comments: no
+showcomments: yes
+showpagemeta: yes
+draft: true
+---
+
+
+
+<pre class="r"><code>library(tidyverse)</code></pre>
+<div id="summary" class="section level1">
+<h1>Summary</h1>
+<p>Average of sleep data: 6.878 <span class="math inline">\(\bar{x}\)</span></p>
+<p>Variance of sleep data: 1.736 <span class="math inline">\(\sigma^2\)</span></p>
+<p>Sample size: 1991 <span class="math inline">\(n\)</span></p>
+<p>Variance of sampling distribution: 0.00087 <span class="math inline">\(\frac{\sigma^2}{n}\)</span></p>
+</div>
+<div id="notes" class="section level1">
+<h1>Notes</h1>
+<p>When a random variable gets multiplied by a constant, it’s variance gets multiplied by the square of that constant (good to derive this rule)</p>
+<div id="derivation-of-sampling-mean" class="section level2">
+<h2>Derivation of sampling mean</h2>
+<p>The sample mean <span class="math inline">\(\bar{x}\)</span> is <span class="math inline">\(\frac{x_1 + x_2 + … + x_n}{n}\)</span></p>
+<p>So the variance of <span class="math inline">\(\bar{x}\)</span> can be written <span class="math inline">\(Var(\bar{x})\)</span> and is equal to</p>
+<p><span class="math display">\[
+Var(\frac{x_1+x_2+...+x_n}{n})
+\]</span></p>
+<p>And see the note above, so we can pull out the <span class="math inline">\(1/n\)</span></p>
+<p><span class="math display">\[
+\frac{1}{n^2}Var(x_1+x_2+...+x_n)
+\]</span></p>
+<p>The variance of a sum is equal to the sum of the variance, so:</p>
+<p><span class="math display">\[
+\frac{1}{n^2}(Var(x_1) + Var(x_2) + ...+Var(x_n))
+\]</span></p>
+<p>Which can be written:</p>
+<p><span class="math display">\[
+\frac{1}{n^2}n\sigma^2
+\]</span></p>
+<p>Or:</p>
+<p><span class="math display">\[
+\frac{\sigma^2}{n}
+\]</span></p>
+</div>
+</div>
+<div id="intro" class="section level1">
+<h1>Intro</h1>
+<p>Let’s build up an understanding of the delta method from scratch. The delta method is used to find asymptotic properties of linear transformations of random variables. That probably sounds like it’s not too useful, but it actually is. For example, let’s say we’re running an experiment. Some of the things we want to measure the difference of are simple metrics, like sleep, naps, etc. But what if we want to measure something like sleep/nap? How would we measure the variance of this in order to do statistical inference on it? Unlike sleep or naps, we can’t simply take the variance.</p>
+</div>
+<div id="what-is-variance" class="section level1">
+<h1>What is variance?</h1>
+<p>Let’s take a step back and remind ourselves what variance is. We’ll be working with some sample data on how long people slept.</p>
+<pre class="r"><code>sleep &lt;- read_csv(&quot;NHANES_sleep.csv&quot;)</code></pre>
+<pre><code>## Rows: 1991 Columns: 7
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (5): Gender, Race_Ethnicity, HomeOwn, Depressed, Smoke100
+## dbl (2): SleepHrsNight, Age
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>Variance measures how much a random variable moves around its mean. In our case, the mean is just:</p>
+<pre class="r"><code>sample_mean &lt;- mean(sleep$SleepHrsNight)
+sample_mean</code></pre>
+<pre><code>## [1] 6.878955</code></pre>
+<p>And the variance is the sum of the squared difference between the mean and each observation, divided by the sample size:</p>
+<pre class="r"><code>sum((sample_mean - sleep$SleepHrsNight)^2/length(sleep$SleepHrsNight))</code></pre>
+<pre><code>## [1] 1.73472</code></pre>
+<p>Or we can use this function:</p>
+<pre class="r"><code>var(sleep$SleepHrsNight)</code></pre>
+<pre><code>## [1] 1.735592</code></pre>
+<p>This tells us how much our sleep data varies relative to its mean. But there’s also a concept of a variance of a <em>sampling distribution</em> which is different, but actually more of interest to us.</p>
+<p>Let’s imagine we got this sleep data from an experiment we ran. We measure that the average sleep is 6.88 hours, with a variance of 1.735, but this variance is only about the particular sample. If there were a few people who got 0 hours of sleep, or hundreds of hours of sleep, it would have massive effect on the variance. That makes the variance a little less interesting from a statistical standpoint.</p>
+<p>Imagine we ran this experiment thousands of times. We’d get many different sample means. Most would be pretty close to 6.88 (provided we are getting large enough samples, which we are). Some would, by sheer randomness, be a bit further from 6.88. This range is important because it tells us what a range of which we can expect our data to fall in if we aren’t changing anything about our experiment. Like imagine this was a control group.</p>
+<p>This range is what we call the <strong>variance of the sampling distribution</strong>. We derived its formula above, it’s just the variance divided by n.</p>
+<pre class="r"><code>var_sampling_distbution &lt;- var(sleep$SleepHrsNight)/length(sleep$SleepHrsNight)
+var_sampling_distbution</code></pre>
+<pre><code>## [1] 0.0008717188</code></pre>
+<p>We also know, by the Central Limit Theorem, that the sampling distribution of the sample mean has a normal distribution, which means it’s going to behave in a certain way - i.e. it’ll follow the classic bell curve. From that we know things like:</p>
+<ul>
+<li><p>68% of the observations are going to be within 1 standard error from the mean</p></li>
+<li><p>95% of the observations are going to be within 2 standard errors from the mean</p></li>
+</ul>
+<p>Let’s compute these. A standard error is just the square root of the variance:</p>
+<pre class="r"><code>se_sampling_distribution &lt;- sqrt(var_sampling_distbution)
+se_sampling_distribution</code></pre>
+<pre><code>## [1] 0.02952488</code></pre>
+<p>So what this means is that if we were to collect many more samples of sleep data, we’d expect the 68% of these samples to have a mean within +/- 0.0295 of 6.878955.</p>
+<p>Now let’s just regroup: It feels like we’re building one thing on top of another using formulas that we’re just kind of taking for granted, right? This is where simulation can help us convince ourselves that what we’ve been saying is actually true.</p>
+<div id="simulating-and-bootstrapping" class="section level2">
+<h2>Simulating and bootstrapping</h2>
+<p>Since we can’t go out there and actually collect more sleep data to build more sample means, the best thing we can do is to something called bootstrapping. Essentially, this amounts to drawing thousands of large samples of our data in random ways (where replacement is allowed), and treat these as if they were new data. As long as we have a big, true, IID sample, there’s nothing wrong with doing this.</p>
+<pre class="r"><code>sleep_sample &lt;- function(df = sleep) {
+  mean(sample(df$SleepHrsNight, size = nrow(df), replace = T))
+}
+bootstraps &lt;- replicate(10000, sleep_sample())</code></pre>
+<p>So now we have 10,000 sample means of our data. According to the Central Limit Theorem, this data should have a classic bell shaped distribution:</p>
+<pre class="r"><code>tibble(means = bootstraps) |&gt; 
+  ggplot() + 
+  geom_histogram(aes(means)) + 
+  labs(x = &#39;Sample means&#39;, y = &#39;Samples&#39;)</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p>And it checks out! Okay, so there’s one thing we’ve said above that we were able to simulate and verify. Now let’s check the variance. Earlier we calculated the variance as:</p>
+<pre class="r"><code>var_sampling_distbution</code></pre>
+<pre><code>## [1] 0.0008717188</code></pre>
+<p>Let’s compare this to our bootstrapped method:</p>
+<pre class="r"><code>var(bootstraps)</code></pre>
+<pre><code>## [1] 0.0008609797</code></pre>
+<p>Pretty close, right? And the more we bootstrap, the closer it’s going to get to the theoretical value.</p>
+<p>Finally, let’s verify that roughly 68% of our sample means fall within 1 standard error, and the 95% fall within 2:</p>
+<pre class="r"><code>sum(bootstraps &gt;= (sample_mean - se_sampling_distribution) &amp; bootstraps &lt;= sample_mean + se_sampling_distribution)/length(bootstraps)</code></pre>
+<pre><code>## [1] 0.6817</code></pre>
+<p>Yes, 68% do.</p>
+<pre class="r"><code>sum(bootstraps &gt;= (sample_mean - 2*se_sampling_distribution) &amp; bootstraps &lt;= sample_mean + 2*se_sampling_distribution)/length(bootstraps)</code></pre>
+<pre><code>## [1] 0.9567</code></pre>
+<p>And 95% fall within 2.</p>
+</div>
+</div>
+<div id="how-variance-can-vary" class="section level1">
+<h1>How variance can vary</h1>
+<p>Above, we had a constant variance because we had a dataset we were working with. But now let’s imagine, instead, we’re working with something more theoretical, like the probability of a Bernoulli trial.</p>
+<p>Imagine the probability of getting a 1 is 0.5, then the probability of getting a 0 is also 0.5.</p>
+<p>We can derive the mean and variance of a bernoulli trial (see chapter 1):</p>
+<ul>
+<li><p>Mean: <span class="math inline">\(p\)</span></p></li>
+<li><p>Variance: <span class="math inline">\(p(1-p)\)</span></p></li>
+</ul>
+<p>So if <span class="math inline">\(p=0.5\)</span> the variance is <span class="math inline">\(0.25\)</span></p>
+<p>Can we compute the sampling distribution the same way we did before? Let’s imagine we have 1000 trials:</p>
+<pre class="r"><code>sim_bern &lt;- function(n = 1000, p = 0.5) {
+  one_minus &lt;- 1-p
+  trials &lt;- sample(c(0,1), size = n, replace = T, prob = c(p, one_minus))
+  return(trials)
+}
+mean(sim_bern())</code></pre>
+<pre><code>## [1] 0.512</code></pre>
+<pre class="r"><code>var(sim_bern())</code></pre>
+<pre><code>## [1] 0.2502462</code></pre>
+<p>The variance is the same as <span class="math inline">\(p(1-p)\)</span>.</p>
+<p>According to our formula, the variance of the sampling distribution should be <span class="math inline">\(0.25/1000\)</span></p>
+<pre class="r"><code>0.25/1000</code></pre>
+<pre><code>## [1] 0.00025</code></pre>
+<p>Let’s try to bootstrap it:</p>
+<pre class="r"><code>bernouli_means &lt;- replicate(10000, mean(sim_bern()))
+tibble(bernouli_means) |&gt; 
+  ggplot(aes(bernouli_means)) + 
+  geom_histogram()</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<pre class="r"><code>var(bernouli_means)</code></pre>
+<pre><code>## [1] 0.0002465811</code></pre>
+<p>Nice!</p>
+<p>Now let’s look at when p varies. Obviously when p gets really big, or really small, the variance is going to shrink. To convince yourself, think about the variance in the outcomes of the Bernoulli trials when p = 1.</p>
+<p>Let’s see the relationship between p and var:</p>
+<pre class="r"><code>tibble(
+  probs = seq(0,1,by=0.01),
+  var_probs = probs*(1-probs)
+) |&gt; 
+  ggplot(aes(probs, var_probs)) + 
+  geom_line()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
+<p>Similarly, the sampling distribution is going to just be this divided by the sample size.</p>
+</div>
+<div id="when-we-have-a-function-of-p" class="section level1">
+<h1>When we have a function of p</h1>
+<p>Above, we looked at the mean, variance, sample mean, and variance of the sampling distribution of a bernoulli trial. Now let’s imagine instead of measuring these statistics for p, we want to measure it for a linear transformation of p. The simple example would be <span class="math inline">\(f(p) = \frac{p}{(1-p)}\)</span>, which is also known as the odds ratio and is used a lot in betting:</p>
+<p>Working with the initial <span class="math inline">\(p=0.5\)</span> , <span class="math inline">\(f(p)=1\)</span>.</p>
+<pre class="r"><code>odds_means &lt;- bernouli_means/(1-bernouli_means)
+
+tibble(odds_means) |&gt; 
+  ggplot(aes(odds_means)) + 
+  geom_histogram()</code></pre>
+<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<pre class="r"><code>var(odds_means)</code></pre>
+<pre><code>## [1] 0.003979269</code></pre>
+<div id="delta-method" class="section level2">
+<h2>Delta method</h2>
+<p>Delta method tells us that if we have a normally distributed random variable with mean 0 and sd sigma 2, then a function <span class="math inline">\(g(x)\)</span> of that has this distribution:</p>
+<p><span class="math display">\[
+\sqrt{n}(g(x_n)-g(\mu))\rightarrow N(0,(g&#39;(\mu))^2\sigma^2)
+\]</span></p>
+<p>Plugging in our formula</p>
+<p><span class="math display">\[
+Var(\frac{p}{1-p})=g&#39;(p)^2Var(p)
+\]</span></p>
+<p>And</p>
+<p><span class="math display">\[
+g&#39;(p) = \frac{1}{(1-p)^2}
+\]</span></p>
+<p>Then the variance will be</p>
+<p><span class="math display">\[
+(\frac{1}{(1-p)^2})^2p(1-p)
+\]</span></p>
+<p>Or</p>
+<p><span class="math display">\[
+g(x_n)-g(\mu)\rightarrow N(0,\frac{p}{n(1-p)^3})
+\]</span></p>
+<pre class="r"><code>0.5/(1000*(1-0.5)^3)</code></pre>
+<pre><code>## [1] 0.004</code></pre>
+<p>Nice! Note that the only other way we could compute the variance was by bootstrapping, and we couldn’t simply just use the variance formula.</p>
+</div>
+</div>
+<div id="scratch" class="section level1">
+<h1>Scratch</h1>
+<p>Can we simulate the odds the same way we simulated the bernoulli?</p>
+<pre class="r"><code>sim_odds &lt;- function(n = 1000, p = 0.5) {
+  one_minus &lt;- 1-p
+  trials &lt;- sample(c(0,1), size = n, replace = T, prob = c(p, one_minus))
+  return(trials)
+}</code></pre>
+</div>

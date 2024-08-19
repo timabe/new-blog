@@ -35,34 +35,37 @@ showpagemeta: yes
 <li>3 channels of weights, corresponding to the redness, greenness, and blueness of the pixel</li>
 </ul>
 <pre class="r"><code>library(colordistance)
-library(tidyverse, warn.conflicts = F)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.2 ──
-## ✔ ggplot2 3.4.2     ✔ purrr   1.0.1
-## ✔ tibble  3.2.1     ✔ dplyr   1.1.2
-## ✔ tidyr   1.3.0     ✔ stringr 1.5.0
-## ✔ readr   2.1.4     ✔ forcats 0.5.2
+library(tidyverse, warn.conflicts = F)
+## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+## ✔ purrr     1.0.2     
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code># load the image as a list of 4 elements
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>
+# load the image as a list of 4 elements
 eye_list &lt;- loadImage(&quot;images/brown_eye.jpg&quot;)
 # take the list element named &quot;original.rgb&quot;
 eye_rgb &lt;- eye_list[[&quot;original.rgb&quot;]]
 
 # verify that this is a 3-dimensional array like I explained above
-dim(eye_rgb)</code></pre>
-<pre><code>## [1] 410 612   3</code></pre>
+dim(eye_rgb)
+## [1] 410 612   3</code></pre>
 <p>Let’s look at the first pixel in the image.</p>
-<pre class="r"><code>eye_rgb[1,1,1:3]</code></pre>
-<pre><code>## [1] 0.7803922 0.6784314 0.6274510</code></pre>
+<pre class="r"><code>eye_rgb[1,1,1:3]
+## [1] 0.7803922 0.6784314 0.6274510</code></pre>
 <p>So the first pixel has a weight of <code>0.78</code> red, <code>0.68</code> green, and <code>0.63</code> blue. Rather than representing this as a mixture of three different colors, it makes more sense and is more generally recognized in computer land to refer to this as one color and to use a hexadecimal representation for that.</p>
 <pre class="r"><code># convert these 3 weights to a hex value
 rgb(
   red = eye_rgb[1,1,1],
   green = eye_rgb[1,1,2],
   blue = eye_rgb[1,1,3]
-)</code></pre>
-<pre><code>## [1] &quot;#C7ADA0&quot;</code></pre>
+)
+## [1] &quot;#C7ADA0&quot;</code></pre>
 <p>If you like, you can type <a href="https://www.google.com/search?q=%23C7ADA0+color">this hex value into google</a> and verify that it matches the skin color in the upper left of the photo.</p>
 <p>We can use a similar process to figure out how many colors there are in total in this photo. We’ll apply the <code>rgb</code> function to the 3 color channels to flatten down the array into a 2 dimensional matrix of hex values (I love <code>purrr</code> more than anyone, but it’s not designed to work on arrays and matrices, so we’ll go old skool). Then we’ll tabulate the hex values, convert it to a tibble, and sort it by count.</p>
 <pre class="r"><code>eye_hex_values &lt;- apply(eye_rgb, MARGIN = c(1,2), function(x) rgb(x[1], x[2], x[3])) 
@@ -74,8 +77,8 @@ hex_df &lt;- tabled_hex_values  |&gt;
   arrange(desc(n)) |&gt; 
   rename(hex_value = X, cnt = n) |&gt; 
   mutate(percent_of_total = scales::percent(cnt/sum(cnt)))
-hex_df</code></pre>
-<pre><code>## # A tibble: 42,861 × 3
+hex_df
+## # A tibble: 42,861 × 3
 ##    hex_value   cnt percent_of_total
 ##    &lt;chr&gt;     &lt;int&gt; &lt;chr&gt;           
 ##  1 #C9AEA3    1572 0.62649%        
@@ -121,10 +124,10 @@ hex_df</code></pre>
     mutate(percent_of_total = cnt/sum(cnt))
 }
 
-color_count(&quot;images/flag_images/fi.png&quot;)</code></pre>
-<pre><code>## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
-## alpha.message, : No transparent pixels in image</code></pre>
-<pre><code>## # A tibble: 38 × 3
+color_count(&quot;images/flag_images/fi.png&quot;)
+## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
+## alpha.message, : No transparent pixels in image
+## # A tibble: 38 × 3
 ##    hex_value    cnt percent_of_total
 ##    &lt;chr&gt;      &lt;int&gt;            &lt;dbl&gt;
 ##  1 #FFFFFF   149464          0.597  
@@ -156,10 +159,10 @@ color_count(&quot;images/flag_images/fi.png&quot;)</code></pre>
 </div>
 <p>But when we use the 1% cutoff, we see two different shades of blue. They’re almost imperceptible to the human eye, and <a href="https://www.google.com/search?q=%233E5EB9+color">one (#3E5EB9) represents 36%</a> whereas the <a href="https://www.google.com/search?q=%233D5DA7+color">other (#3D5DA7) only represents 1.8%</a>.</p>
 <pre class="r"><code>swaziland_path &lt;- file.path(&quot;images/flag_images/sz.png&quot;)
-color_count(swaziland_path)</code></pre>
-<pre><code>## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
-## alpha.message, : No transparent pixels in image</code></pre>
-<pre><code>## # A tibble: 4,080 × 3
+color_count(swaziland_path)
+## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
+## alpha.message, : No transparent pixels in image
+## # A tibble: 4,080 × 3
 ##    hex_value   cnt percent_of_total
 ##    &lt;chr&gt;     &lt;int&gt;            &lt;dbl&gt;
 ##  1 #3E5EB9   92160          0.338  
@@ -185,19 +188,19 @@ color_count(swaziland_path)</code></pre>
 <p>Having a quantitative scale for colors yields two cool results. One is that we can better communicate colors. So a graphic designer doesn’t have to call the printer and say “can you reprint and add just a little more blue?”. She can just relay the RGB values she wants and expect them to be rendered faithfully. Secondly, where there’s numbers there’s math. With the RGB scale, we can perform all our favorite math things with colors like addition, subtraction, distance, multiplication, clustering, binning, etc.</p>
 <p>Let’s go back to our Swaziland example, where I mentioned we have two very similar shades of blue, leading to a false positive when we use our naive rule of filtering out colors at the 1% level. Our brains told us we were looking at just one blue, and with the RGB colorspace we can now speak objectively about them. Below is a glimpse of a random sample of the pixels in the Swaziland flag, plotted in the three dimensional RGB space. There’s a simple function in the <code>colordistance</code> library to do this called <code>plotPixels</code>.</p>
 <pre class="r"><code>loadImage(swaziland_path) |&gt; 
-  plotPixels(n = 1000, lower = NULL, upper = NULL)</code></pre>
-<pre><code>## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
+  plotPixels(n = 1000, lower = NULL, upper = NULL)
+## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
 ## alpha.message, : No transparent pixels in image</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="100%" /></p>
 <p>We can see the blue values, and we can also see that they’re very close in the RGB 3 dimensional space. Don’t you just want to reach your hand in there and squeeze them together? The same is noticeable for black, brown, grey, and red colors. Normally, when we have continuous data like this and we want to reduce it into something more discrete, we have two go-to methods: Clustering and Binning. And of course, the <code>colordistance</code> package has functions for clustering and binning colors (what a great library!). Which one do we want? Well think about it. Clustering colors, which is done using k-means, requires us to state the number of clusters <em>a priori</em>. But our whole goal of this essay is to have the computer tell us how many colors there are. So we want to stay away from any method where we tell the computer to work with a number we’re giving it ahead of time. Binning on the other hand, is a technique that divides a space into equal sized ranges, and counts the number of observations in each range. To see what I mean, let’s bin the colors of the Swaziland flag.</p>
 <pre class="r"><code>sz &lt;- loadImage(swaziland_path) |&gt; 
-  getImageHist(bins = c(3,3,2), lower = NULL, upper = NULL, title = &quot;Swaziland Flag Color Bins&quot;)</code></pre>
-<pre><code>## RGB and HSV are device-dependent, perceptually non-uniform color spaces. See &#39;Color spaces&#39; vignette for more information.</code></pre>
-<pre><code>## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
-## alpha.message, : No transparent pixels in image</code></pre>
-<pre><code>## 
+  getImageHist(bins = c(3,3,2), lower = NULL, upper = NULL, title = &quot;Swaziland Flag Color Bins&quot;)
+## RGB and HSV are device-dependent, perceptually non-uniform color spaces. See &#39;Color spaces&#39; vignette for more information.
+## Warning in removeBackground(img, lower = lower, upper = upper, quietly =
+## alpha.message, : No transparent pixels in image
+## 
 ## Using 3*3*2 = 18 bins</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/bin%20swazi-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/bin%20swazi-1.png" width="100%" /></p>
 <p>The function <code>getImageHist</code> divides the RGB space into as many as 27 mini-cubes (although I found that using 18 works the best with the flag data). Any pixels in a given cube get averaged together, counted, and displayed on a bar chart. And as you can see, this method solved our false positive, merging the two very close blue pixels into one blue color. So this color binning method seems like a great tool to get us closer to answering the question at hand: Which flag has the most colors?</p>
 <p>Of course, color binning is not a panacea. In the case of Swaziland, note that there are still some very small bins representing colors we probably would not subjectively say exist as distinct colors in the Swaziland flag. One example is the dark red bin representing the second bar. This color is probably a result of the pixelation around the red/blue borders of the flag. It’s not something we’re supposed to see distinctly. So if we want to use this binning method to count colors, we’ll still have to find some cutoff value to throw away these edge colors.</p>
 <p>There’s another thing I haven’t brought up yet, too. I know, you’re thinking this is getting too long, but hopefully some part of you finds this entertaining too. Remember, the journey is the destination.</p>
@@ -264,15 +267,15 @@ flag_color_df &lt;- flag_df |&gt;
   scale_x_log10() + 
   geom_vline(xintercept = 4e-03, color = &#39;red&#39;) +
   ggtitle(&quot;Distribution of color percentages&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="100%" /></p>
 <p>We end up getting a bi-modal distribution. What are these two modes? Well the one to the right on the chart represents large color areas - the big, solid shapes of color we normally associate with flags. As that distribution tails off to the left, we get colors representing anywhere from 10% down to around 0.5%. These are mostly going to be colors that we’d be able to detect, but might represent small details of a flag like the blue shields in the Portuguese flag or the brown eagle in the Mexican flag. The second mode peaks around 0.01%. Anything representing this small of a percentage is likely to be borders or gradients, like the weird stuff we saw when we zoomed in on the Finnish flag or perhaps shades of brown gradation in the Mexican flag’s eagle that got color-binned in separate boxes from the primary brown color. Even though these colors are real, they don’t feel in the spirit of the question we’re trying to answer. Just to convince you, let’s find a random flag with a binned color representing around 0.01% and see if we can detect it.</p>
 <pre class="r"><code>set.seed(5446)
 flag_color_df |&gt; 
   filter(between(Pct, 9e-05, 2e-04)) |&gt; 
   ungroup() |&gt; 
   sample_n(1) |&gt; 
-  select(country, Pct, hex)</code></pre>
-<pre><code>## # A tibble: 1 × 3
+  select(country, Pct, hex)
+## # A tibble: 1 × 3
 ##   country       Pct hex    
 ##   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;  
 ## 1 Portugal 0.000117 #4D5D94</code></pre>
@@ -297,8 +300,8 @@ flag_color_df |&gt;
   filter(Pct &gt; 4e-03) |&gt; 
   count(country, sort = T)
 
-winners_df</code></pre>
-<pre><code>## # A tibble: 15 × 2
+winners_df
+## # A tibble: 15 × 2
 ## # Groups:   country [15]
 ##    country          n
 ##    &lt;chr&gt;        &lt;int&gt;
@@ -373,10 +376,10 @@ image_append(c(top4, bot4), stack = T) |&gt;
 
 
 plot_proportional_colors(country_flag = &quot;Belize&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/graph_colors-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/graph_colors-1.png" width="100%" /></p>
 <p>This is a nice visualization to help us understand how much of each color is actually present in the flag. With Belize, we can see that 4 colors (blue, white, red, and green) make up almost the entirety of the flag. The remaining 5 are all crammed in at the very end. Let’s compare that to South Africa now, which you will recall only has 6 colors but contains no seals, crests, or illustrations.</p>
 <pre class="r"><code>plot_proportional_colors(country_flag = &quot;South Africa&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-6-1.png" width="100%" /></p>
 <p>Unlike Belize, South Africa’s colors are much more uniform. Belize might have more colors, but South Africa is more <em>colorful</em>. How might we show that quantitatively? Consider a flag with any number of colors - let’s say 3 just to keep it simple. How would those colors have to be distributed to maximize the “colorfulness” of the flag? Clearly if one color dominated 75% of the flag, with the other two only occupying a small corner, we wouldn’t say the flag is as colorful as one where all three colors share <span class="math inline">\(1/3\)</span> of the space. For a visual example, compare Taiwan to Lithuania.</p>
 <div class="float">
 <img src="images/flag_images/tw.png" alt="Taiwan: 75% red, 22% blue, 3% white" />
@@ -396,20 +399,23 @@ plot_proportional_colors(country_flag = &quot;Belize&quot;)</code></pre>
   summarise(
     kl = -1*sum(log2(Pct/unif_dist)), 
     color_cnt = n()
-    )</code></pre>
-<pre><code>## `summarise()` has grouped output by &#39;country&#39;. You can override using the
+    )
+## `summarise()` has grouped output by &#39;country&#39;. You can override using the
 ## `.groups` argument.</code></pre>
-<pre class="r"><code>library(ggimage)
+<pre class="r"><code>
+library(ggimage)
 flag_kl_div |&gt; 
   ggplot(aes(color_cnt, kl)) + 
   geom_text(aes(label = country), nudge_x = .4) + 
   geom_flag(aes(image= toupper(iso_code))) + 
   xlim(5.5, 9.5) + 
   labs(y = &quot;KL Divergence&quot;, x = &quot;Color Count&quot;) + 
-  theme_minimal()</code></pre>
-<pre><code>## Warning: Removed 3 rows containing missing values (`geom_text()`).</code></pre>
-<pre><code>## Warning: Removed 3 rows containing missing values (`geom_image()`).</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+  theme_minimal()
+## Warning: Removed 3 rows containing missing values or values outside the scale range
+## (`geom_text()`).
+## Warning: Removed 3 rows containing missing values or values outside the scale range
+## (`geom_image()`).</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-7-1.png" width="100%" /></p>
 <p>We can see that South Africa does indeed have the lowest KL divergence, indicating its colors are closest to being uniformly distributed. Next lowest are the flags with non-illustrative crests or symbols. Finally, the flags with the highest KL divergence are those with intricate illustrations like Mexico and Belize, both of which we’ve taken deeper looks at. So now we can say that, of the flags with 6 colors, South Africa is the most colorful. Here’s another nice visualization to compare the colorfulness of each flag.</p>
 <pre class="r"><code>flag_kl_div |&gt; 
   inner_join(flag_color_df, by = c(&#39;country&#39;, &#39;iso_code&#39;)) |&gt; 
@@ -430,7 +436,7 @@ flag_kl_div |&gt;
     panel.grid = element_blank()
   ) +
   ggtitle(&#39;Top 8 Flags, ranked by KL Divergence \n aka &quot;Colorfulness&quot;&#39;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="100%" /></p>
 <p>We’re still left with a problem. When comparing South Africa to Belize, we unfortunately cannot say much about which flag has the best <em>combination</em> of color count and color distribution. To do that, we’d have to figure out some trade-off between more colors and lower KL divergence. Your threshold might be different than mine, though.</p>
 <p>Any other metric we might come up with for “colorfulness” will have this same problem as well. We can only rank flags by colorfulness against other flags with the same color count. So what’s the final answer? Well, not to be too much of a hippie here, but I think there can be multiple winners. At least there should be two categories: One for flags with crests, seals, or illustrations and another for flags comprised of solid shapes. In this case, we have our two winners. In the category of most colors for a flag with crests, seals, or illustrations the winner is . . .</p>
 <div id="belize-with-9-colors" class="section level3">

@@ -4,3 +4,8 @@ body
     background-color: #fcfcf9;
     font-family: 'Crimson Text', 'Yanone Kaffeesatz', arial, serif;
 }
+
+img {
+    max-width: 100% !important;
+}
+

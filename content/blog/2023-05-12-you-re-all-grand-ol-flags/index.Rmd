@@ -10,6 +10,11 @@ showcomments: yes
 showpagemeta: yes
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, out.width = "100%")
+```
+
+
 The other day I was trying to think of a good trivia question, and this one popped into my head:
 
 > What country's flag has the most colors? 

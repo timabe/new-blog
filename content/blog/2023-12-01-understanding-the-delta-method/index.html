@@ -1,7 +1,7 @@
 ---
 title: Understanding the Delta Method
 author: Tim Abraham
-date: '2023-12-01'
+date: '2025-01-06'
 slug: []
 categories: []
 tags: []
@@ -13,19 +13,314 @@ draft: true
 
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<div id="summary" class="section level1">
-<h1>Summary</h1>
-<p>Average of sleep data: 6.878 <span class="math inline">\(\bar{x}\)</span></p>
-<p>Variance of sleep data: 1.736 <span class="math inline">\(\sigma^2\)</span></p>
-<p>Sample size: 1991 <span class="math inline">\(n\)</span></p>
-<p>Variance of sampling distribution: 0.00087 <span class="math inline">\(\frac{\sigma^2}{n}\)</span></p>
+<p>If you are a Data Scientist, Economist, or have worked on analyzing A/B experiments, you’ve likely used something in Statistics called the <strong>Delta Method</strong>. I have used it extensively throughout my career, generally to estimate the variance of certain metrics in the context of experiments. However, I never really understood what it was. I found most explanations of it to be confusing, since they use unintuitive language like “the variance of a function of a random variable” (what is a function of a random variable? and what is the variance of a function?) and bring in derivatives from techniques like Taylor Expansion.</p>
+<p>I never could work through how a derivative of a function had anything to do with something like variance, which I associate as a formula to apply to a set of numbers. Where do functions and derivatives come into play?</p>
+<p>After many years of not really understanding the Delta Method, and being dissatisfied with explanations online, I decided to sit down and figure it out in a way that I could explain to others like me (so folks with some statistical background).</p>
+<p>In this post, we’ll walk through an intuitive explanation of the Delta Method. Then, once we develop the intuition, we’ll derive it mathematically. Finally, we’ll see a more complex example that might be more akin to something we’d encounter in the wild.</p>
+<div id="delta-method-intuition" class="section level1">
+<h1>Delta Method Intuition</h1>
+<p>The <a href="https://en.wikipedia.org/wiki/Delta_method">Delta Method</a> is a way of estimating the variance of a <em>function of a random variable<strong>.</strong></em> Generally the function is non-linear, since if it’s linear then you can just take the variance using the regular way.</p>
+<p>So let’s consider some non-linear function that we might apply to a random variable. The simplest one that comes to mind is a log transformation, since that is often used in statistics to compress larger values and stretch smaller ones.</p>
+<div id="log-transformation-of-a-random-variable" class="section level2">
+<h2>Log Transformation of a Random Variable</h2>
+<p>To start, let’s get a refresher of what a log transformation looks like. We’ll take the range <code>[1,100]</code> and plot the log of those values on the Y-axis:</p>
+<pre class="r"><code>plt &lt;- tibble(
+  x = 1:100,
+  y = log(x)
+) |&gt; 
+  ggplot(aes(x,y)) + 
+  geom_line() + 
+  ggtitle(&#39;Log Transformation of X&#39;)
+plt</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p>The relationship is <strong>non-linear</strong>. When values of X are very small, say between 1 and 10, the values of Y range relatively large, between 0 and 2.3. But as X values get large, say between 90 and 100, the values of Y are much more narrow, between 4.5 and 4.6.</p>
+<div id="the-variance-of-a-function" class="section level3">
+<h3>The Variance of a function?</h3>
+<p>Now imagine we wanted to know the variance of <span class="math inline">\(Log(x)\)</span>. First off, what do we mean by the variance of <span class="math inline">\(Log(x)\)</span>? For me this was always confusing when reading textbooks that talked about the Delta Method - <em>what does it mean to take the variance of a function?</em> We’re used to taking the variance of data, which makes sense, but the variance of a function, where there are no data points to use, is not at all intuitive. At least to me it isn’t.</p>
+<p>But let’s think about in in the context of sample means. Think of <span class="math inline">\(X\)</span> as a random variable with a mean <span class="math inline">\(\mu_{x}\)</span> of 5. Let’s say we get some data from X, compute a sample mean <span class="math inline">\(\bar{X}\)</span>, and the value happens to be 5:</p>
+<pre class="r"><code>plt + 
+  annotate(&quot;point&quot;, x = 5, y = log(5), color = &#39;red&#39;, size = 2.5)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Now let’s imagine we draw another random sample. It’s unlikely to be <strong>exactly</strong> 5 again, but will probably come out to something in the ballpark of 5. And if we drew thousands of random samples, we’d expect the <em>distribution</em> of our sample means to be approximately normal peaking at the mean value 5.</p>
+<p>Now let’s imagine that instead of 5, the mean of our random variable is 95. Again, by drawing thousands of samples of this random variable, we get a normal distribution of outcomes peaking around 95. These distributions would look something like this:</p>
+<p><img src="d1.png" /></p>
+<p>And their variances would simply be <span class="math inline">\(\frac{\sigma^2}{n}\)</span> . And their variances would also be equal.</p>
+<p>But, now let’s consider what the variances of their Log transformation would be. To visualize that, let’s draw a line between the bulk of the distribution to show the spread:</p>
+<p><img src="d2.png" /></p>
+<p>And now let’s see the range of values these take on at in terms of Y:</p>
+<p><img src="d3.png" /></p>
+<p>What do we notice? The range of possible <span class="math inline">\(Y\)</span> values that the red distribution takes on is much larger than the range of <span class="math inline">\(Y\)</span> values that the blue distribution takes on.</p>
+<p>In other words, even though the variances of <span class="math inline">\(X\)</span> are the same when the means are 5 and 95, the variance of <span class="math inline">\(Log(X)\)</span> is much larger when the mean is 5 than when it’s 95, due to the non-linearity of the log transformation. Specifically the way it stretches lower values and compresses higher values.</p>
+<p>Another way of putting this is that the variance of <span class="math inline">\(Log(X)\)</span> depends on the <strong>slope</strong> of <span class="math inline">\(Log(X)\)</span> around the value that x takes on. The slope when <span class="math inline">\(\mu_{x} = 5\)</span> is higher than the slope when <span class="math inline">\(\mu_{x} = 95\)</span>, which is why the variance is higher at 5 than it is at 95. And remember that when we talk about slope, we are talking about the <strong>derivative of the function.</strong> Basically, the variance is scaled by some factor related to the slope of the function.</p>
+<p><strong>This is the key intuition behind the Delta Method</strong>, which says that if <span class="math inline">\(X\)</span> is a random variable with:</p>
+<ul>
+<li><p>Mean <span class="math inline">\(E[X] = \mu\)</span></p></li>
+<li><p>Variance <span class="math inline">\(Var(X) = \sigma^2\)</span></p></li>
+</ul>
+<p>And <span class="math inline">\(g(X)\)</span> is a differentiable function of <span class="math inline">\(X\)</span> (like <span class="math inline">\(Log(X)\)</span>) , the Delta Method approximates the variance of <span class="math inline">\(g(X)\)</span> as:</p>
+<p><span class="math display">\[
+Var(g(X)) \approx (g\prime(\mu))^2\cdot Var(X)
+\]</span></p>
+<p>Of course <span class="math inline">\(g\prime(\mu)\)</span> is the slope of the function at the mean value. The reason why it’s scaled by the square of that, is because variance deals with squared values.</p>
+<p>So in our example, if <span class="math inline">\(g(X)=Log(X)\)</span>, then <span class="math inline">\(g\prime(x) = \frac{1}{x}\)</span> and <span class="math inline">\(Var(Log(x)) \approx \frac{1}{x}^2 \cdot Var(x)\)</span></p>
+<p>Let’s try it out in a coded example:</p>
 </div>
-<div id="notes" class="section level1">
-<h1>Notes</h1>
-<p>When a random variable gets multiplied by a constant, it’s variance gets multiplied by the square of that constant (good to derive this rule)</p>
-<div id="derivation-of-sampling-mean" class="section level2">
-<h2>Derivation of sampling mean</h2>
+<div id="example-variance-of-logx-when-mu-5-vs-mu-95" class="section level3">
+<h3>Example: Variance of <span class="math inline">\(Log(X)\)</span> when <span class="math inline">\(\mu = 5\)</span> vs <span class="math inline">\(\mu = 95\)</span></h3>
+<p>Let’s take a random sample from the population where the mean is 5:</p>
+<pre class="r"><code>sd = 5
+sample_mean_5 = rnorm(1000, mean = 5, sd = sd)</code></pre>
+<p>From these sample values, we can compute the variance (here we’re dealing with the variance of the sampling distribution, so we divide by n):</p>
+<pre class="r"><code>var(sample_mean_5)/1000</code></pre>
+<pre><code>## [1] 0.02498413</code></pre>
+<p>But taking the variance of the log transformed values won’t return the correct variance.</p>
+<pre class="r"><code>var(log(sample_mean_5))/1000</code></pre>
+<pre><code>## Warning in log(sample_mean_5): NaNs produced</code></pre>
+<pre><code>## [1] NA</code></pre>
+<p>Applying the delta method gives us the correct variance:</p>
+<pre class="r"><code>(1/5)^2*var(sample_mean_5)/1000</code></pre>
+<pre><code>## [1] 0.0009993653</code></pre>
+<p>Let’s check that this value is larger than the variance when the mean is 95:</p>
+<pre class="r"><code>sample_mean_95 = rnorm(1000, mean = 95, sd = sd)</code></pre>
+<pre class="r"><code>(1/95)^2*var(sample_mean_95)/1000</code></pre>
+<pre><code>## [1] 2.689847e-06</code></pre>
+<p>It is - but of course just finding that the variance at 95 is smaller than the variance at 5 isn’t completely satisfying me that I went about this correctly.</p>
+<p>In these cases where I want to check my work, I find that using simulation is a good way to go. So let’s use bootstrap simulation to check our work:</p>
+</div>
+<div id="bootstrap-simulation-to-check-our-work" class="section level3">
+<h3>Bootstrap Simulation to check our work</h3>
+<p>So the variance at 5 is larger than 95, which is what we expect. Now let’s try bootstrapping to check our work.</p>
+<p>The way this works is very simple. We’ll take our sampled values and resample from them, generating 10,000 different sample means. Then we’ll take the variance and see if they come close to the estimates we computed above. We’ll start with <span class="math inline">\(\mu_{x}=5\)</span></p>
+<pre class="r"><code>resample &lt;- function(means) {
+  new_sample = sample(means, replace = T)
+  log(mean(new_sample))
+}
+
+bootstrap_mean_5 &lt;- replicate(10000, resample(sample_mean_5))
+var(bootstrap_mean_5)</code></pre>
+<pre><code>## [1] 0.001034121</code></pre>
+<p>Which is very close to the <code>0.0009287053</code> we got above. Now let’s try it for <span class="math inline">\(\mu_{x}=95\)</span>:</p>
+<pre class="r"><code>bootstrap_mean_95 &lt;- replicate(10000, resample(sample_mean_95))
+var(bootstrap_mean_95)</code></pre>
+<pre><code>## [1] 2.706014e-06</code></pre>
+<p>Again, this is very close to the value we got above of <code>2.704471e-06</code></p>
+</div>
+</div>
+</div>
+<div id="derivation-of-the-delta-method" class="section level1">
+<h1>Derivation of the Delta Method</h1>
+<p>In the above section we covered the intuition behind the Delta Method. Now that we understand it intuitively, let’s derive it.</p>
+<p>We’ll start with the regular formula for variance:</p>
+<p><span class="math display">\[
+Var(X) = \mathbb{E}[(X-\mathbb{E}[X])^2]
+\]</span></p>
+<p>Then the variance of a transformation <span class="math inline">\(g(X)\)</span> would be:</p>
+<p><span class="math display">\[
+Var(g(X)) = \mathbb{E}[(g(X)-\mathbb{E}[g(X)])^2]
+\]</span></p>
+<p>We can approximate <span class="math inline">\(g(X)\)</span> using a first order Taylor Expansion:</p>
+<p><span class="math display">\[
+g(X) \approx g(\mu_{x}) + g\prime(\mu_x)(X-\mu_x)
+\]</span></p>
+<p>This is where the concept of using the slope of the function, which we used above to build our intuition, comes into play. For a good review on Taylor Expansions, I recommend <a href="https://www.youtube.com/watch?v=3d6DsjIBzJ4&amp;themeRefresh=1">this 3Blue1Brown video</a>.</p>
+<p>If we take expectations on both sides of the Taylor Expansion relationship, we get the following:</p>
+<p><span class="math display">\[
+\mathbb{E}[g(X)] \approx g(\mu_x) + g\prime(\mu_x)\cdot\mathbb{E}[X-\mu_x]
+\]</span></p>
+<p>(Note that because <span class="math inline">\(g(\mu_x)\)</span> and its derivative are constants, the expectation operator does not apply. Furthermore, <span class="math inline">\(\mathbb{E}[X-\mu_x]=0\)</span> so the whole things becomes <span class="math inline">\(E[g(X)]=g(\mu_x)\)</span> .</p>
+<p>We can plug that relationship back into the Taylor Expansion equation and get:</p>
+<p><span class="math display">\[
+g(X) -\mathbb{E}[g(X)] \approx  g\prime(\mu_x)(X-\mu_x)
+\]</span></p>
+<p>By rearranging this, the values on the left hand side of the equation are the same as what <span class="math inline">\(Var(g(X))\)</span> is equal to above. So we can substitute the right hand side of the equation back into our variance equation and get:</p>
+<p><span class="math display">\[
+Var(g(X)) \approx \mathbb{E}[(g\prime(\mu_x)(x-\mu_x))^2]
+\]</span></p>
+<p>We can pull out the <span class="math inline">\(g\prime(\mu_x)^2\)</span> because it’s just a constant, giving us:</p>
+<p><span class="math display">\[
+Var(g(X)) \approx g\prime(\mu_x)^2\mathbb{E}[(X-\mu_x)^2]
+\]</span></p>
+<p>And now notice that <span class="math inline">\(\mathbb{E}[(X-\mu_x)^2]\)</span> is the same as <span class="math inline">\(Var(X)\)</span>, so</p>
+<p><span class="math display">\[
+Var(g(x)) = g\prime(\mu_x)^2\cdot Var(X)
+\]</span></p>
+<p>Which is the formula we used above.</p>
+</div>
+<div id="a-more-complicated-but-practical-example" class="section level1">
+<h1>A more complicated, but practical example</h1>
+<p>One of the most common use cases for the Delta Method is in the context of an A/B experiment. In an A/B experiment, you compare how metrics behave between a control and treatment group. Generally you care about computing the mean of the metrics, and then computing their variances to get a standard error which will ultimately get you a p-value.</p>
+<p>Most metrics don’t require you to use the Delta Method. I work at Airbnb, so I’m going to use that as a test case. A common metric we might want to move up is the number of Bookings made. This does not require the Delta Method, since it’s a simple metric and not a transformation of one (or multiple).</p>
+<p>An example of where we’d use the delta method would be something like Price for Available Night, or any other metric derived as the <em>ratio of two metrics</em><strong>.</strong></p>
+<p>Let’s see how this would work.</p>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>We’ll just simulate data from 1,000 Airbnb-style listings. In one column we’ll have the number of nights the listing has available on their calendar, and in another column we’ll have the total price for all those nights.</p>
+<p>Let’s assume something we did in our experiment and we want to know if it caused the treatment group to raise their prices. In the simulation we’ll raise them ever so slightly, but not enough to be considered statistically significant.</p>
+<pre class="r"><code>set.seed(94611)
+subjects = 1000
+control_price = 150
+treatment_effect = 0.012
+control_df &lt;- tibble(
+  nights = sample(1:365, size = subjects, replace = T),
+  price = rnorm(n = subjects, mean = control_price, sd = 22)*nights,
+) 
+
+treat_df &lt;- tibble(
+  nights = sample(1:365, size = subjects, replace = T),
+  price = rnorm(n = subjects, mean = control_price*(1+treatment_effect), sd = 22)*nights,
+) </code></pre>
+<p>We can check to see if the average price per night changed by simply computing the sample means and comparing them:</p>
+<pre class="r"><code>control_mean &lt;- sum(control_df$price)/sum(control_df$nights)
+treatment_mean &lt;- sum(treat_df$price)/sum(treat_df$nights)
+lift = (treatment_mean-control_mean)/control_mean
+cat(&quot;Control Mean: &quot;, control_mean)</code></pre>
+<pre><code>## Control Mean:  150.3317</code></pre>
+<pre class="r"><code>cat(&quot;\nTreatment Mean: &quot;, treatment_mean)</code></pre>
+<pre><code>## 
+## Treatment Mean:  152.3364</code></pre>
+<pre class="r"><code>cat(&quot;\nPrice difference: &quot;, percent(lift, accuracy = .1))</code></pre>
+<pre><code>## 
+## Price difference:  1.3%</code></pre>
+<p>However, in A/B testing we want to also understand whether the lift is statistically significant. For that we need to perform some sort of statistical test where we get a p-value. This involves computing the variance of the sampling distribution our metric, <code>Price/Nights</code>.</p>
+<p>If we had a simpe metric like bookings, we could just compute the variance of the sampling distribution the normal way:</p>
+<p><span class="math display">\[
+\frac{\sigma^2}{n}
+\]</span></p>
+<p>Or in code:</p>
+<pre class="r"><code>var(control_df$price/control_df$nights)/subjects</code></pre>
+<pre><code>## [1] 0.4990496</code></pre>
+<p>But this is incorrect. Let’s carry out our hypothesis testing using this incorrect variance estimate and see what we get:</p>
+<pre class="r"><code>bad_var_control &lt;- var(control_df$price/control_df$nights)/subjects
+bad_var_treatment &lt;- var(treat_df$price/treat_df$nights)/subjects
+stderr = (bad_var_treatment + bad_var_control)^0.5
+z_stat = (treatment_mean - control_mean)/stderr
+pvalue = 2 * (1 - pnorm(abs(z_stat)))
+cat(&quot;\nP-value: &quot;, pvalue)</code></pre>
+<pre><code>## 
+## P-value:  0.04558027</code></pre>
+<p>This is right below the sacred p-value threshold of 5%, so normally we’d reject the null hypothesis and say that this 1.3% lift is statistically significant and probably ship the treatment.</p>
+<p>However, computing the variance of <code>Price/Night</code> this way is incorrect. Why? Consider how each listing is treated. Computing it this way, they are all treated equally. A listing with 1 night priced at $500 would have an average <code>Price/Night</code> of $500. Meanwhile, a listing with 365 nights priced at $100 would have an average <code>Price/Night</code> of $100. But the second listing with 365 nights has much more impact on the average price per night. 365 times as much. So treating them with equal weight is incorrect and is akin to taking the average of an average. But that’s exactly what:</p>
+<pre class="r"><code>var(control_df$price/control_df$nights)/subjects</code></pre>
+<pre><code>## [1] 0.4990496</code></pre>
+<p>is doing, which is why doing that is incorrect.</p>
+</div>
+<div id="applying-the-delta-method" class="section level2">
+<h2>Applying the Delta Method</h2>
+<p>So how do we compute the variance of our sampling distribution if the standard formula is no good for ratio metrics. The answer is to use the <strong>Delta Method</strong>. Since we’re not talking about <span class="math inline">\(g(X) = Log(X)\)</span>, but rather <span class="math inline">\(g(X,Y) = X/Y\)</span>, we want to use this formula instead (we’ll derive this in the next section).</p>
+<p><span class="math display">\[
+Var(\frac{X}{Y}) = \mu_{y}^{-2} \cdot (Var(X) + Var(Y)\cdot(\frac{\mu_x}{\mu_y})^2) -2Cov(X,Y)\cdot(\frac{\mu_x}{\mu_y})
+\]</span></p>
+<p>This is much more complex than the formula for <span class="math inline">\(Var(Log(X))\)</span>, but don’t worry we’ll break it down later.</p>
+<p>For now let’s put this into code:</p>
+<pre class="r"><code>var_delta_method &lt;- function(df) {
+  n = nrow(df)
+  numerator_mean = mean(df$price)
+  denominator_mean = mean(df$nights)
+  numerator_var = var(df$price)/n
+  denominator_var = var(df$nights)/n
+  covariance = cov(df$price, df$nights)/n
+  
+  ratio = numerator_mean / denominator_mean
+    
+  denominator_mean^-2 * (numerator_var + (denominator_var * ratio^2) - 2*covariance * ratio)
+  
+}</code></pre>
+<p>Now we can compute the variance of our ratio metric using the Delta Method:</p>
+<pre class="r"><code>control_var = var_delta_method(control_df)
+treatment_var = var_delta_method(treat_df)</code></pre>
+<p>And perform the same statistical test we did above:</p>
+<pre class="r"><code>stderr = (treatment_var + control_var)^0.5
+z_stat = (treatment_mean - control_mean)/stderr
+pvalue = 2 * (1 - pnorm(abs(z_stat)))
+cat(&quot;\nPrice difference: &quot;, percent(lift, accuracy = .1))</code></pre>
+<pre><code>## 
+## Price difference:  1.3%</code></pre>
+<pre class="r"><code>cat(&quot;\nP-value: &quot;, pvalue)</code></pre>
+<pre><code>## 
+## P-value:  0.07838519</code></pre>
+<p>This time we get the correct p-value, 0.078. In this case, we would fail to reject the null hypothesis, which would be the correct thing to do (and not ship the treatment experience).</p>
+</div>
+</div>
+<div id="checking-results-by-bootstrapping" class="section level1">
+<h1>Checking results by bootstrapping</h1>
+<p>Again, let’s use bootstrap simulation to convince ourselves that we did the right thing. After all, the formula for <span class="math inline">\(Var(\frac{X}{Y})\)</span> was quite complex looking and we have yet to derive it. It might feel like we took a leap of faith, so by boostrap simulation we can triangulate our results.</p>
+<pre class="r"><code>cat(&quot;Bad Variance Estimate: &quot;, bad_var_control)</code></pre>
+<pre><code>## Bad Variance Estimate:  0.4990496</code></pre>
+<pre class="r"><code>cat(&quot;\nDelta Method Variance Estimate: &quot;, control_var)</code></pre>
+<pre><code>## 
+## Delta Method Variance Estimate:  0.6336488</code></pre>
+<p>The idea behind it is very simple. Recall that the interpretation of our variance metric is something like this:</p>
+<p>We have a sample mean from our data. If we ran our experiment again, it would be very unlikely that our sample mean would be <strong>exactly</strong> the same as this one. But it should be close. The variance tells us how much we’d expect a large number of sample means to spread out.</p>
+<p>Bootstrapping follows the same logic. Of course it’s not really feasible to run our experiment thousands of times, but we can randomly sample data from the sample we have to pretend that we’re running thousands of experiments and getting thousands of sample means. Then computing the variance of those simulated sample means should give us a good estimate of the variance. Let’s see it in action:</p>
+<pre class="r"><code>metric_sample &lt;- function(df) {
+  resampled_df &lt;- df[sample(nrow(df), replace = TRUE), ]
+  
+  sum(resampled_df$price) / sum(resampled_df$nights)
+}
+
+bootstraps &lt;- replicate(10000, metric_sample(control_df))
+
+var(bootstraps)</code></pre>
+<pre><code>## [1] 0.6332349</code></pre>
+<p>The variance of our bootstrapped sample means comes out to 0.52, which is about the same as the estimate we got with the Delta Method formula!</p>
+<p>By the way, the bootstrap technique also helps us convince ourselves that our sample means are normally distributed:</p>
+<pre class="r"><code>tibble(sample_mean = bootstraps) |&gt; 
+  ggplot(aes(sample_mean)) + 
+  geom_histogram(bins = 30)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p>And recall that the standard deviation is the square root of the variance:</p>
+<pre class="r"><code>sqrt(var(bootstraps))</code></pre>
+<pre><code>## [1] 0.7957606</code></pre>
+<p>Meaning we’d expect 65% of our sample means to fall within +/- 1 of these</p>
+<pre class="r"><code>bootstrap_sd &lt;- sqrt(var(bootstraps))
+bootstrap_mean = mean(bootstraps)
+tibble(sample_mean = bootstraps) |&gt; 
+  ggplot(aes(sample_mean)) + 
+  geom_histogram(bins = 30) + 
+  geom_vline(xintercept = bootstrap_mean-bootstrap_sd) + 
+  geom_vline(xintercept = bootstrap_mean+bootstrap_sd)    </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<div id="derivation-of-delta-method-using-ratio-metrics" class="section level2">
+<h2>Derivation of Delta Method using Ratio Metrics</h2>
+<p>When we derived the Delta Method above, it was for a non-linear transformation of a single variable, <span class="math inline">\(X\)</span>. Now we are doing it for a multi-variate case.</p>
+<p><span class="math display">\[
+g(X,Y) = \frac{X}{Y}
+\]</span></p>
+<p>The first order Taylor expansion gives:</p>
+<p><span class="math display">\[
+g(X,Y) \approx g(\mu_x,\mu_y) + \frac{\partial{g}}{\partial{X}}(X-\mu_x) + \frac{\partial{g}}{\partial{Y}}(Y-\mu_y)
+\]</span></p>
+<p>And the partial derivatives are:</p>
+<p><span class="math display">\[
+\frac{\partial{g}}{\partial{X}}=\frac{1}{\mu_Y},\frac{\partial{g}}{\partial{Y}}=-\frac{\mu_x}{\mu^2_y}
+\]</span></p>
+<p>Now let’s take the variance, plugging in our formula for <span class="math inline">\(g\)</span> and our partial derivatives:</p>
+<p><span class="math display">\[
+Var(g(X,Y)) \approx Var \left( \frac{\mu_X}{\mu_Y} + \frac{1}{\mu_Y}(X-\mu_X) - \frac{\mu_X}{\mu^2_Y}(Y-\mu_Y) \right)
+\]</span></p>
+<p>And using the rule that says the variance of a linear combination:</p>
+<p><span class="math display">\[
+Var(aX+bY)=a^2Var(X) + b^2Var(Y)+2abCov(X,Y)
+\]</span></p>
+<p>then</p>
+<p><span class="math display">\[
+Var(g(X,Y)) \approx (\frac{1}{\mu_Y})^2Var(X) +(-\frac{\mu_X}{\mu^2_Y})^2Var(Y) + 2\cdot \frac{1}{\mu_Y}\cdot (-\frac{\mu_X}{\mu^2_Y})\cdot Cov(X,Y)
+\]</span></p>
+<p>Which can then be reduced to:</p>
+<p><span class="math display">\[
+Var(\frac{X}{Y}) = \mu_{y}^{-2} \cdot (Var(X) + Var(Y)\cdot(\frac{\mu_x}{\mu_y})^2) -2Cov(X,Y)\cdot(\frac{\mu_x}{\mu_y})
+\]</span></p>
+</div>
+</div>
+<div id="conclusions" class="section level1">
+<h1>Conclusions</h1>
+<p>In this post, we tried to untangle the mysteries of the Delta Method. We first shed some light on the intuition of it, and then went on to do several examples of putting the formula to work. We also used bootstrap simulation to triangulate our answers.</p>
+<p>While the derivations can be a little complex, especially for complicated metrics like ratio metrics, I hope that by having the intuition and the bootstrap technique to triangulate, it’s at least a bit easier for folks to wrap their head around this concept.</p>
+</div>
+<div id="appendix" class="section level1">
+<h1>Appendix</h1>
+<div id="derivation-of-sampling-mean-and-variance-of-sampling-mean" class="section level2">
+<h2>Derivation of sampling mean and variance of sampling mean</h2>
 <p>The sample mean <span class="math inline">\(\bar{x}\)</span> is <span class="math inline">\(\frac{x_1 + x_2 + … + x_n}{n}\)</span></p>
 <p>So the variance of <span class="math inline">\(\bar{x}\)</span> can be written <span class="math inline">\(Var(\bar{x})\)</span> and is equal to</p>
 <p><span class="math display">\[
@@ -48,172 +343,4 @@ Var(\frac{x_1+x_2+...+x_n}{n})
 \frac{\sigma^2}{n}
 \]</span></p>
 </div>
-</div>
-<div id="intro" class="section level1">
-<h1>Intro</h1>
-<p>Let’s build up an understanding of the delta method from scratch. The delta method is used to find asymptotic properties of linear transformations of random variables. That probably sounds like it’s not too useful, but it actually is. For example, let’s say we’re running an experiment. Some of the things we want to measure the difference of are simple metrics, like sleep, naps, etc. But what if we want to measure something like sleep/nap? How would we measure the variance of this in order to do statistical inference on it? Unlike sleep or naps, we can’t simply take the variance.</p>
-</div>
-<div id="what-is-variance" class="section level1">
-<h1>What is variance?</h1>
-<p>Let’s take a step back and remind ourselves what variance is. We’ll be working with some sample data on how long people slept.</p>
-<pre class="r"><code>sleep &lt;- read_csv(&quot;NHANES_sleep.csv&quot;)</code></pre>
-<pre><code>## Rows: 1991 Columns: 7
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (5): Gender, Race_Ethnicity, HomeOwn, Depressed, Smoke100
-## dbl (2): SleepHrsNight, Age
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<p>Variance measures how much a random variable moves around its mean. In our case, the mean is just:</p>
-<pre class="r"><code>sample_mean &lt;- mean(sleep$SleepHrsNight)
-sample_mean</code></pre>
-<pre><code>## [1] 6.878955</code></pre>
-<p>And the variance is the sum of the squared difference between the mean and each observation, divided by the sample size:</p>
-<pre class="r"><code>sum((sample_mean - sleep$SleepHrsNight)^2/length(sleep$SleepHrsNight))</code></pre>
-<pre><code>## [1] 1.73472</code></pre>
-<p>Or we can use this function:</p>
-<pre class="r"><code>var(sleep$SleepHrsNight)</code></pre>
-<pre><code>## [1] 1.735592</code></pre>
-<p>This tells us how much our sleep data varies relative to its mean. But there’s also a concept of a variance of a <em>sampling distribution</em> which is different, but actually more of interest to us.</p>
-<p>Let’s imagine we got this sleep data from an experiment we ran. We measure that the average sleep is 6.88 hours, with a variance of 1.735, but this variance is only about the particular sample. If there were a few people who got 0 hours of sleep, or hundreds of hours of sleep, it would have massive effect on the variance. That makes the variance a little less interesting from a statistical standpoint.</p>
-<p>Imagine we ran this experiment thousands of times. We’d get many different sample means. Most would be pretty close to 6.88 (provided we are getting large enough samples, which we are). Some would, by sheer randomness, be a bit further from 6.88. This range is important because it tells us what a range of which we can expect our data to fall in if we aren’t changing anything about our experiment. Like imagine this was a control group.</p>
-<p>This range is what we call the <strong>variance of the sampling distribution</strong>. We derived its formula above, it’s just the variance divided by n.</p>
-<pre class="r"><code>var_sampling_distbution &lt;- var(sleep$SleepHrsNight)/length(sleep$SleepHrsNight)
-var_sampling_distbution</code></pre>
-<pre><code>## [1] 0.0008717188</code></pre>
-<p>We also know, by the Central Limit Theorem, that the sampling distribution of the sample mean has a normal distribution, which means it’s going to behave in a certain way - i.e. it’ll follow the classic bell curve. From that we know things like:</p>
-<ul>
-<li><p>68% of the observations are going to be within 1 standard error from the mean</p></li>
-<li><p>95% of the observations are going to be within 2 standard errors from the mean</p></li>
-</ul>
-<p>Let’s compute these. A standard error is just the square root of the variance:</p>
-<pre class="r"><code>se_sampling_distribution &lt;- sqrt(var_sampling_distbution)
-se_sampling_distribution</code></pre>
-<pre><code>## [1] 0.02952488</code></pre>
-<p>So what this means is that if we were to collect many more samples of sleep data, we’d expect the 68% of these samples to have a mean within +/- 0.0295 of 6.878955.</p>
-<p>Now let’s just regroup: It feels like we’re building one thing on top of another using formulas that we’re just kind of taking for granted, right? This is where simulation can help us convince ourselves that what we’ve been saying is actually true.</p>
-<div id="simulating-and-bootstrapping" class="section level2">
-<h2>Simulating and bootstrapping</h2>
-<p>Since we can’t go out there and actually collect more sleep data to build more sample means, the best thing we can do is to something called bootstrapping. Essentially, this amounts to drawing thousands of large samples of our data in random ways (where replacement is allowed), and treat these as if they were new data. As long as we have a big, true, IID sample, there’s nothing wrong with doing this.</p>
-<pre class="r"><code>sleep_sample &lt;- function(df = sleep) {
-  mean(sample(df$SleepHrsNight, size = nrow(df), replace = T))
-}
-bootstraps &lt;- replicate(10000, sleep_sample())</code></pre>
-<p>So now we have 10,000 sample means of our data. According to the Central Limit Theorem, this data should have a classic bell shaped distribution:</p>
-<pre class="r"><code>tibble(means = bootstraps) |&gt; 
-  ggplot() + 
-  geom_histogram(aes(means)) + 
-  labs(x = &#39;Sample means&#39;, y = &#39;Samples&#39;)</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
-<p>And it checks out! Okay, so there’s one thing we’ve said above that we were able to simulate and verify. Now let’s check the variance. Earlier we calculated the variance as:</p>
-<pre class="r"><code>var_sampling_distbution</code></pre>
-<pre><code>## [1] 0.0008717188</code></pre>
-<p>Let’s compare this to our bootstrapped method:</p>
-<pre class="r"><code>var(bootstraps)</code></pre>
-<pre><code>## [1] 0.0008609797</code></pre>
-<p>Pretty close, right? And the more we bootstrap, the closer it’s going to get to the theoretical value.</p>
-<p>Finally, let’s verify that roughly 68% of our sample means fall within 1 standard error, and the 95% fall within 2:</p>
-<pre class="r"><code>sum(bootstraps &gt;= (sample_mean - se_sampling_distribution) &amp; bootstraps &lt;= sample_mean + se_sampling_distribution)/length(bootstraps)</code></pre>
-<pre><code>## [1] 0.6817</code></pre>
-<p>Yes, 68% do.</p>
-<pre class="r"><code>sum(bootstraps &gt;= (sample_mean - 2*se_sampling_distribution) &amp; bootstraps &lt;= sample_mean + 2*se_sampling_distribution)/length(bootstraps)</code></pre>
-<pre><code>## [1] 0.9567</code></pre>
-<p>And 95% fall within 2.</p>
-</div>
-</div>
-<div id="how-variance-can-vary" class="section level1">
-<h1>How variance can vary</h1>
-<p>Above, we had a constant variance because we had a dataset we were working with. But now let’s imagine, instead, we’re working with something more theoretical, like the probability of a Bernoulli trial.</p>
-<p>Imagine the probability of getting a 1 is 0.5, then the probability of getting a 0 is also 0.5.</p>
-<p>We can derive the mean and variance of a bernoulli trial (see chapter 1):</p>
-<ul>
-<li><p>Mean: <span class="math inline">\(p\)</span></p></li>
-<li><p>Variance: <span class="math inline">\(p(1-p)\)</span></p></li>
-</ul>
-<p>So if <span class="math inline">\(p=0.5\)</span> the variance is <span class="math inline">\(0.25\)</span></p>
-<p>Can we compute the sampling distribution the same way we did before? Let’s imagine we have 1000 trials:</p>
-<pre class="r"><code>sim_bern &lt;- function(n = 1000, p = 0.5) {
-  one_minus &lt;- 1-p
-  trials &lt;- sample(c(0,1), size = n, replace = T, prob = c(p, one_minus))
-  return(trials)
-}
-mean(sim_bern())</code></pre>
-<pre><code>## [1] 0.512</code></pre>
-<pre class="r"><code>var(sim_bern())</code></pre>
-<pre><code>## [1] 0.2502462</code></pre>
-<p>The variance is the same as <span class="math inline">\(p(1-p)\)</span>.</p>
-<p>According to our formula, the variance of the sampling distribution should be <span class="math inline">\(0.25/1000\)</span></p>
-<pre class="r"><code>0.25/1000</code></pre>
-<pre><code>## [1] 0.00025</code></pre>
-<p>Let’s try to bootstrap it:</p>
-<pre class="r"><code>bernouli_means &lt;- replicate(10000, mean(sim_bern()))
-tibble(bernouli_means) |&gt; 
-  ggplot(aes(bernouli_means)) + 
-  geom_histogram()</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
-<pre class="r"><code>var(bernouli_means)</code></pre>
-<pre><code>## [1] 0.0002465811</code></pre>
-<p>Nice!</p>
-<p>Now let’s look at when p varies. Obviously when p gets really big, or really small, the variance is going to shrink. To convince yourself, think about the variance in the outcomes of the Bernoulli trials when p = 1.</p>
-<p>Let’s see the relationship between p and var:</p>
-<pre class="r"><code>tibble(
-  probs = seq(0,1,by=0.01),
-  var_probs = probs*(1-probs)
-) |&gt; 
-  ggplot(aes(probs, var_probs)) + 
-  geom_line()</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
-<p>Similarly, the sampling distribution is going to just be this divided by the sample size.</p>
-</div>
-<div id="when-we-have-a-function-of-p" class="section level1">
-<h1>When we have a function of p</h1>
-<p>Above, we looked at the mean, variance, sample mean, and variance of the sampling distribution of a bernoulli trial. Now let’s imagine instead of measuring these statistics for p, we want to measure it for a linear transformation of p. The simple example would be <span class="math inline">\(f(p) = \frac{p}{(1-p)}\)</span>, which is also known as the odds ratio and is used a lot in betting:</p>
-<p>Working with the initial <span class="math inline">\(p=0.5\)</span> , <span class="math inline">\(f(p)=1\)</span>.</p>
-<pre class="r"><code>odds_means &lt;- bernouli_means/(1-bernouli_means)
-
-tibble(odds_means) |&gt; 
-  ggplot(aes(odds_means)) + 
-  geom_histogram()</code></pre>
-<pre><code>## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
-<pre class="r"><code>var(odds_means)</code></pre>
-<pre><code>## [1] 0.003979269</code></pre>
-<div id="delta-method" class="section level2">
-<h2>Delta method</h2>
-<p>Delta method tells us that if we have a normally distributed random variable with mean 0 and sd sigma 2, then a function <span class="math inline">\(g(x)\)</span> of that has this distribution:</p>
-<p><span class="math display">\[
-\sqrt{n}(g(x_n)-g(\mu))\rightarrow N(0,(g&#39;(\mu))^2\sigma^2)
-\]</span></p>
-<p>Plugging in our formula</p>
-<p><span class="math display">\[
-Var(\frac{p}{1-p})=g&#39;(p)^2Var(p)
-\]</span></p>
-<p>And</p>
-<p><span class="math display">\[
-g&#39;(p) = \frac{1}{(1-p)^2}
-\]</span></p>
-<p>Then the variance will be</p>
-<p><span class="math display">\[
-(\frac{1}{(1-p)^2})^2p(1-p)
-\]</span></p>
-<p>Or</p>
-<p><span class="math display">\[
-g(x_n)-g(\mu)\rightarrow N(0,\frac{p}{n(1-p)^3})
-\]</span></p>
-<pre class="r"><code>0.5/(1000*(1-0.5)^3)</code></pre>
-<pre><code>## [1] 0.004</code></pre>
-<p>Nice! Note that the only other way we could compute the variance was by bootstrapping, and we couldn’t simply just use the variance formula.</p>
-</div>
-</div>
-<div id="scratch" class="section level1">
-<h1>Scratch</h1>
-<p>Can we simulate the odds the same way we simulated the bernoulli?</p>
-<pre class="r"><code>sim_odds &lt;- function(n = 1000, p = 0.5) {
-  one_minus &lt;- 1-p
-  trials &lt;- sample(c(0,1), size = n, replace = T, prob = c(p, one_minus))
-  return(trials)
-}</code></pre>
 </div>

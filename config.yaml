@@ -1,4 +1,4 @@
-baseurl: https://www.timabe.info
+baseurl: https://www.timabe.me
 builddrafts: no
 canonifyurls: no
 languageCode: en-US
@@ -16,7 +16,7 @@ params:
   authorimage: dot.png
   dateformat: Jan 2, 2006
   extra:
-    copyright: © 2023. Tim Abraham. [Some Rights Reserved](http://creativecommons.org/licenses/by/3.0/).
+    copyright: © 2025. Tim Abraham. [Some Rights Reserved](http://creativecommons.org/licenses/by/3.0/).
     displayrssicon: no
     highlightjs: yes
     poweredby: no

@@ -24,7 +24,7 @@ showpagemeta: yes
 ### Dry Rub
 
 - 1/2 cup brown sugar
-- 1/2 cup paprika
+- 1 tablespoon paprika
 - 1 tablespoon black pepper
 - 1 tablespoon salt
 - 1 tablespoon chili powder

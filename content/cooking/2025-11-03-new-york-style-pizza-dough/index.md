@@ -10,41 +10,101 @@ showcomments: true
 showpagemeta: true
 ---
 
-# New York Style Pizza Dough
+# New York Style Pizza Dough (2 × 16” Pizzas)
 
 ![](pizza.jpeg)
 
 This dough works great for making large (16") New York style pizzas. I make them in my Ooni oven and have some baking tips below.
 
-## Ingredients
 
-This will make 2 16" pizzas. Don't try to adjust if you want to make a 12" pizza unless you have a good understanding of geometry.
+## Yield
+- 2 × 16-inch pizzas  
+- ~370g dough per ball
 
--   Flour: 436 grams
+---
 
--   Sugar: 5 grams
+## Ingredients (Baker’s %)
 
--   Salt: 10 grams
+- 436g flour (100%)
+- 283g water (65%)
+- 9g salt (2%)
+- 9g olive oil (2%)
+- 5g sugar (1%)
+- 3g diastatic malt powder (0.5%)
+- 0.44g instant yeast (0.1%) or I just use 1/8 tsp
 
--   Yeast: 1/8 teaspoon. You don't need a lot! I don't put the weights in because my scale can't measure fractions of a gram.
+---
 
-Mix together these dry ingredients and add:
+## Method
 
--   Water: 284 grams (warm, 80-90 degrees)
+### 1. Mix + Autolyse
+- Combine flour and ~90% of the water (hold back ~25–30g)
+- Mix until a shaggy dough forms
+- Rest 20–30 minutes
 
--   Olive Oil: 2 tablespoons
+---
 
-## Instructions
+### 2. Add Remaining Ingredients
+- Dissolve salt, sugar, yeast, and malt in reserved water
+- Add to dough, then add olive oil last
+- Mix/knead until:
+  - Smooth-ish
+  - Slightly elastic
+  - Not fully developed (no full windowpane)
 
-Mix dough using a stand mixer, with the dough hook attachment for 7 minutes.
+---
 
-Using extra flour as needed, kneed the dough for another 7-10 minutes by hand until it's smooth and a bit stretchy.
+### 3. Light Gluten Development
+- Rest 20 minutes  
+- Perform 1 stretch & fold  
+- Rest 20 minutes  
+- Perform 1 more stretch & fold  
 
-Cover and let rise for 1 hour.
+Dough should feel smoother and slightly stronger, but still extensible.
 
-Perform 3 stretch-and-folds over the next hour and a half to 2 hours.
+---
 
-Divide into equal weight balls and refrigerate for at least 36 hours
+### 4. Short Bulk Fermentation
+- Rest at room temperature for 30–45 minutes
+
+Goal:
+- Slight puff
+- Fermentation just beginning (not doubled)
+
+---
+
+### 5. Divide & Ball
+- Divide into 2 equal pieces (~370g each)
+- Form tight, smooth dough balls
+- Place in lightly oiled containers
+
+---
+
+### 6. Cold Fermentation
+- Refrigerate for 48–72 hours
+- Ideal fridge temp: 36–39°F (2–4°C)
+
+---
+
+### 7. Day of Baking
+- Remove dough 2–4 hours before baking
+- Keep covered at room temperature
+
+Dough is ready when:
+- Relaxed
+- Slightly puffy
+- Stretches easily without snapping back
+
+---
+
+## Shaping
+
+- Gently press dough from center outward
+- Leave a slight rim (about 1/2")
+- Stretch to 16 inches using hands/knuckles
+- Avoid aggressively degassing the edge
+
+---
 
 ## Cooking tips
 
@@ -73,3 +133,74 @@ Unlike cooking a Neopolitan style pizza, this style benefits from lower (but sti
 -   Look for block mozzarella and shred it yourself instead of buying pre-shredded. Go for a 50/50 blend of part-skim and full-fat.
 
 -   For a margherita pizza, top with some olive oil before baking and add your basil after baking.
+
+
+# NY Sauce Recipe
+
+
+# Classic New York–Style Pizza Sauce
+
+
+## Yield
+- ~600–650g sauce  
+- Enough for 2–3 × 16-inch pizzas  
+- Use ~120–140g per pizza
+
+---
+
+## Ingredients
+
+- 1 can (28 oz / ~800g) whole peeled tomatoes  
+- 1.5 tbsp olive oil  
+- 1–1.5 tsp sugar  
+- 1 tsp kosher salt (adjust to taste)  
+- 1/2 tsp dried oregano  
+- 1/4 tsp garlic powder  
+- Pinch red pepper flakes (optional)  
+- 2–3 drops vinegar (optional, see note)
+
+---
+
+
+## Method
+
+### 1. Blend Tomatoes
+- Blend until mostly smooth with slight texture remaining
+
+Target:
+- Not chunky  
+- Not completely pureed  
+
+---
+
+### 2. Simmer
+- Add all ingredients to a saucepan
+- Simmer uncovered for 20–30 minutes
+
+Stir occasionally.
+
+Target:
+- Slightly thickened  
+- Deepened red color  
+- Reduced water content  
+
+---
+
+### 3. Finish & Cool
+- Taste and adjust salt/sugar if needed  
+- Optional: add 1 tsp olive oil off heat for richness  
+- Cool completely before using  
+
+Sauce should be:
+- Spreadable  
+- Not watery  
+- Slightly thicker than raw tomato sauce  
+
+---
+
+## How to Use
+
+- Apply ~120–140g sauce per 16” pizza  
+- Spread thin and evenly  
+- Leave ~1/2" border for the crust  
+

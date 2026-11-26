@@ -12,7 +12,7 @@ showpagemeta: yes
 
 This pumpkin pie recipe is inspired by Chef John from Food Wishes. He also adds Chinese 5 Spice, which I don't think goes well here.
 
-This pie is delicious because it's a bit more custardy than a normal pumpkin pie, by virtue of having a few more egg yolks in it.
+This pie is delicious because it's a bit more custardy than a normal pumpkin pie, by virtue of having a few more egg yolks in it. Baking it low and slow at 325°F (instead of the usual 425°F blast, which isn't needed for a blind-baked crust) gives it a much smoother, silkier texture without scorching the edges.
 
 # Ingredients 
 
@@ -24,10 +24,14 @@ This pie is delicious because it's a bit more custardy than a normal pumpkin pie
 * ½ teaspoon fine salt
 * 1 [blind baked pie crust](../pie-crust)
 
-Whisk pumpkin and eggs together, and then add condensed milk. Whisk together more. Add spices and salt, and pour into your blind baked crust.
+# Instructions
 
-Bake at 425 for 15 minutes, and then at 350 for about 30 more minutes.
+Whisk the pumpkin and eggs together gently, then add the condensed milk and whisk until combined. Add the spices and salt, mixing gently so you don't trap a lot of air bubbles (which can cause a porous texture or cracking). Optionally, let the filling sit for about 10 minutes and pass it through a fine-mesh strainer, or give the filled pie pan a few firm taps on the counter before baking to release any stray bubbles.
 
-Be very careful as you slide it into the oven, since you don't want it to splash against the sides of the crust. I also recommend covering the exposed parts of the crust with foil to prevent them from burning.
+Pour the filling into your blind baked crust. Be very careful as you slide it into the oven, since you don't want it to splash against the sides of the crust.
 
-Let the pie cool before putting it into the oven, that should prevent cracking.
+Bake on the center rack at **325°F** using conventional bake (no convection/fan, which dries out the surface and browns the edges too fast) for about **45–55 minutes**. At 325°F you usually won't need foil on the crust, though if your blind-baked edges are already dark golden, you can loosely drape a foil ring over the rim near the end. (If you have extra time and want maximum silkiness, you can also bake at 300°F for about 55–70 minutes.)
+
+Pull the pie by temperature rather than strictly by the clock—it's done when an instant-read thermometer inserted into the dead center (halfway down, not touching the crust) reads **175°F**. Wait until the outer 2 inches look set and matte before opening the oven to check (around 40 minutes); the center 2–3 inches should still wobble in unison like Jell-O. If you need to temp it again, reuse the same probe hole to keep the top smooth. Once it hits ~165°F, it usually takes only 5–7 more minutes to finish.
+
+Let the pie cool completely at room temperature (2–3 hours) before putting it into the refrigerator—carryover heat will finish setting the center and gradual cooling prevents cracking.
